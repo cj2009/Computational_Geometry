@@ -63,13 +63,30 @@ class Triangulation:
         newCursor.next = newHead
         return newHead, self.SIZE
 
+
+    '''
+    Adapted from O'Rourke. This function actually returns twice the area of the 
+    triangle defined by points a, b and c. The area calculation is based on the 
+    determinant method (signed area).
+    '''
     def Area2(self, a, b, c):
         return ((b.x - a.x) * (c.y - a.y)) - ((c.x - a.x) * (b.y - a.y))
 
+
+    '''
+    A convenience function that performs Xor on the two arguments
+    '''
     def Xor(self, x, y):
         return x is not y
 
+
+    '''
+    Adapted from O'Rourke. This is another convenient function that returns 1,
+    -1 or 0 depending on whether the area of the triangle a,b,c is positive,
+    negative or zero, respectively.
+    '''
     def AreaSign(self, a, b, c):
+        # Multiplication by 1.0 is to force conversion to float
         a1 = (b.x - a.x) * 1.0 * (c.y - a.y)
         a2 = (c.x - a.x) * 1.0 * (b.y - a.y)
 
@@ -82,15 +99,33 @@ class Triangulation:
         return 0
 
 
+    '''
+    Adapted from O'Rourke.
+    '''
     def Left(self, a,b,c):
         return self.AreaSign(a,b,c) > 0
 
+
+    '''
+    Adapted from O'Rourke.
+    '''
     def LeftOn(self, a,b,c):
         return self.AreaSign(a,b,c) >= 0
 
+
+    '''
+    Adapted from O'Rourke. Checks if points a,b,c are collinear by performing
+    a quick area calculation of the triangle a,b,c.
+    '''
     def Collinear(self, a,b,c):
         return self.AreaSign(a,b,c) == 0
 
+
+    '''
+    Adapted from O'Rourke. Checks if point c is geometrically in between 
+    points a and b. In between means either in terms of x or y coordinate 
+    ranges.
+    '''
     def Between(self, a, b, c):
         if not self.Collinear(a, b, c):
             return False
@@ -102,6 +137,10 @@ class Triangulation:
             return (a.y <= c.y and c.y <= b.y) or (a.y >= c.y and c.y >= b.y)
 
 
+    '''
+    Adapted from O'Rourke. Returns true if the line segment a,b intersects the 
+    line segment c,d.
+    '''
     def Intersect(self, a, b, c , d):
         if self.IntersectProp(a, b, c, d):
             return True
@@ -111,6 +150,10 @@ class Triangulation:
         return False
 
 
+    '''
+    Adapted from O'Rourke. Returns true if the line segment a,b is a diagonal 
+    of the polygon.
+    '''
     def Diagonalie(self, a, b, HEAD):
         c = HEAD
         c1 = None
@@ -127,6 +170,12 @@ class Triangulation:
 
 
 
+    '''
+    Adapted from O'Rourke. Returns true if the line segments a,b and c,d 
+    intersect "properly." A proper intersection is when the two segments fully 
+    cross each other. If one segment's endpoint lies on the other segment, it's 
+    not considered a proper intersection.
+    '''
     def IntersectProp(self, a, b, c, d):
         if self.Collinear(a,b,c) or self.Collinear(a,b,d) or self.Collinear(c,d,a) or self.Collinear(c,d,b):
             return False
@@ -134,6 +183,10 @@ class Triangulation:
         return self.Xor(self.Left(a,b,c), self.Left(a,b,d)) and self.Xor(self.Left(c,d,a) , self.Left(c,d,b))
 
 
+    '''
+    Adapted from O'Rourke. This function is needed to distinguish internal 
+    diagonals from the external ones.
+    '''
     def InCone(self, a, b):
         a0 = None
         a1 = None
@@ -147,11 +200,20 @@ class Triangulation:
             return not (self.LeftOn(a,b,a1) and self.Left(b,a,a0))
 
 
+    '''
+    Adapted from O'Rourke. 
+    '''
     def Diagonal(self, a, b, HEAD):
         return self.InCone(a,b) and self.InCone(b, a) and self.Diagonalie(a, 
             b, HEAD)
 
 
+
+    '''
+    Adapted from O'Rourke. This function must be called initially before the 
+    triangulation is performed, because the ear status of each vertex must be
+    initialized before triangulation can take place.
+    '''
     def EarInit(self, HEAD):
         v0 = None
         v1 = None
@@ -170,16 +232,17 @@ class Triangulation:
     '''
     This is the actual triangulation function, which makes use of all the helper
     functions defined above. Note that since the linked list will be
-    destroyed during the Triangulation process (since the polygon's ear are
+    destroyed during the triangulation process (since the polygon's ears are
     clipped off), a new linked list is created so that the original linked 
     list is preserved.
+    
     @return: A list of 3-tuples. Each 3-tuple is of the form [v1, v2, v3], 
             which represents a triangle. All of these tuples, taken together,
             represents the triangulated polygon.
             
     Note that the return value can be modified easily so that some other values 
-    of the polygon can be returned - for example, the coordinates of the 
-    triangles or the Point objects themselves.
+    of the polygon can be returned instead - for example, the coordinates of 
+    the triangles or the Point objects themselves.
     '''
     def Triangulate(self):
         v0 = None
@@ -194,15 +257,15 @@ class Triangulation:
         # Create a clone of the linked list just before starting the 
         # triangulation process:
         HEAD, n = self.cloneLinkedList()
+        
+        # Each step of the outer loop clips off one ear
         while n > 3:
             v2 = HEAD
             earfound = False
             while True:
                 if v2.ear:
                     earfound = True
-                    #print(str(v2.name) + " is an ear")
-
-                    # Ear found; fill variables:
+                    # Ear found
                     v3 = v2.next
                     v4 = v3.next
                     v1 = v2.prev
@@ -213,7 +276,7 @@ class Triangulation:
                     tri = [v1.name, v2.name, v3.name]
                     returnlist.append(tri)
 
-                    # Update earity of diagonal endpoints:
+                    # Update the ear status of the diagonal endpoints:
                     v1.ear = self.Diagonal(v0, v3, HEAD)
                     v3.ear = self.Diagonal(v1, v4, HEAD)
 

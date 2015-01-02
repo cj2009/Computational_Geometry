@@ -9,7 +9,7 @@ Created on Nov 17, 2014
 
 
 def main():
-    FILENAME = 'input1.txt'
+    FILENAME = 'input3.txt'
 
     # Open the file from disk, read the points and create a linked-list
     # structure that represents the Polygon:

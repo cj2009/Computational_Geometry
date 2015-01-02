@@ -5,18 +5,16 @@ Created on Dec 6, 2014
 This class handles some input/output. It reads input from file, parses the points,
 creates a linked-list that represents a polygon, etc.
 '''
-
-
-
-'''
-This function compares each point to every other point in the given list and
-removes any duplicate points. Only the x and y coordinates are compared.
-
-@param listofpoints: A list of Point objects.
-'''
 from Point import Point
 import sys
 
+'''
+This function compares each Point object to every other Point object in the 
+given list and removes any duplicates. Only the x and y coordinates are 
+compared.
+
+@param listofpoints: A list of Point objects.
+'''
 def removeDuplicates(listofpoints):
     length = len(listofpoints)
     i = 0
@@ -38,12 +36,12 @@ def removeDuplicates(listofpoints):
 '''
 This function takes in the name of an input file, opens it, reads the list of
 points and creates a linked-list structure out of it. The linked-list structure
-will represent the polygon as points in counterclockwise order.
+will represent the polygon's points in counterclockwise order.
 
-This function expects the file to start with an integer as the first line (which
-is the number of points), and each of the subsequent points to be in the form
-    [Xi,Yi]
-where Xi and Yi are integers.
+Thi input file should be in the following format: The first line is n (the 
+number of points); each of the subsequent lines should be the coordinates of a 
+single point, in the form [Xi,Yi], where Xi and Yi are integers. Therefore the 
+file should have a total of n+1 lines.
 
 @return: Reference to the head of the linked-list and n (number of points)
 '''
@@ -124,7 +122,6 @@ Behaves exactly like the C library function printf.
 '''
 def printf(format, *args):
     sys.stdout.write(format % args)
-
 
 
 '''
